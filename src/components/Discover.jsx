@@ -386,7 +386,19 @@ export default function Discover({
           </div>
         ) : (
           <div className="grid">
-            {assets.map(asset => {
+            {assets.length === 0 ? (
+              <div className="glass-panel" style={{ textAlign: 'center', padding: '48px 24px', borderRadius: '16px', gridColumn: '1 / -1' }}>
+                <Disc size={40} style={{ color: 'var(--accent-purple)', marginBottom: '16px', opacity: 0.6 }} />
+                <h3 style={{ font: '16px Unbounded, sans-serif', color: '#fff', marginBottom: '8px' }}>No Vault Assets Uploaded Yet</h3>
+                <p style={{ color: 'var(--muted)', fontSize: '13px', maxWidth: '440px', margin: '0 auto 20px', lineHeight: '1.6' }}>
+                  Be the first real-world creator to upload a track, beat, or stem to the StagePass Vault catalog.
+                </p>
+                <button className="btn btn-gold" onClick={() => onNavigate('studio')} style={{ padding: '0 24px', height: '38px' }}>
+                  + UPLOAD TRACK TO VAULT
+                </button>
+              </div>
+            ) : (
+              assets.map(asset => {
               const isLocked = asset.isLocked;
               const hasAudUrl = !!asset.audioUrl;
               const hasLyrText = asset.type === 'Lyrics';
@@ -575,13 +587,7 @@ export default function Discover({
                   </div>
                 </div>
               );
-            })}
-
-            {assets.length === 0 && (
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }} className="mono">
-                No active creative assets match these filter selections.
-              </div>
-            )}
+            }))}
           </div>
         )}
 
