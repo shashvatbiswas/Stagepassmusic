@@ -104,14 +104,27 @@ export const initDB = () => {
   }
 };
 
+// In-Memory Fallback Store for Private Browsing / Restricted LocalStorage
+const memoryStore = {};
+
 // API Fetch Helpers
 const getData = (key) => {
   initDB();
-  return JSON.parse(localStorage.getItem(key)) || [];
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : (memoryStore[key] || []);
+  } catch (e) {
+    return memoryStore[key] || [];
+  }
 };
 
 const saveData = (key, data) => {
-  localStorage.setItem(key, JSON.stringify(data));
+  memoryStore[key] = data;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    // Memory fallback if LocalStorage disabled in Private Mode
+  }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('stagepass_db_update', { detail: { key } }));
   }
