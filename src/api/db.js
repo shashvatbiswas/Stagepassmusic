@@ -52,55 +52,63 @@ export const initDB = () => {
   if (dbInitialized) return;
   dbInitialized = true;
   
-  const version = localStorage.getItem('stagepass_db_version');
-  if (version !== DB_VERSION_KEY) {
-    let existingUsers = [];
-    try {
-      const raw = localStorage.getItem(DB_KEYS.USERS);
-      existingUsers = raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      existingUsers = [];
+  try {
+    const version = localStorage.getItem('stagepass_db_version');
+    if (version !== DB_VERSION_KEY) {
+      let existingUsers = [];
+      try {
+        const raw = localStorage.getItem(DB_KEYS.USERS);
+        existingUsers = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        existingUsers = [];
+      }
+
+      // Purge sample seeded accounts, keeping ONLY real accounts signed up by real users + Master Admin
+      const realUsersOnly = Array.isArray(existingUsers) ? existingUsers.filter(u => 
+        u && u.username && !SEEDED_USERNAMES.includes(u.username)
+      ) : [];
+
+      // Ensure Master Admin account is always present and marked as Admin
+      const adminIndex = realUsersOnly.findIndex(u => 
+        u && (u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat')
+      );
+
+      if (adminIndex !== -1) {
+        realUsersOnly[adminIndex] = {
+          ...realUsersOnly[adminIndex],
+          id: 'user_master_admin',
+          username: 'shashvatbiswas',
+          email: 'aaravaadit2002@gmail.com',
+          artistName: realUsersOnly[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
+          isAdmin: true,
+          verified: true
+        };
+      } else {
+        realUsersOnly.unshift(masterAdminUser);
+      }
+
+      localStorage.setItem(DB_KEYS.USERS, JSON.stringify(realUsersOnly));
+      localStorage.setItem('stagepass_db_version', DB_VERSION_KEY);
     }
 
-    // Purge sample seeded accounts, keeping ONLY real accounts signed up by real users + Master Admin
-    const realUsersOnly = existingUsers.filter(u => 
-      u && u.username && !SEEDED_USERNAMES.includes(u.username)
-    );
-
-    // Ensure Master Admin account is always present and marked as Admin
-    const adminIndex = realUsersOnly.findIndex(u => 
-      u && (u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat')
-    );
-
-    if (adminIndex !== -1) {
-      realUsersOnly[adminIndex] = {
-        ...realUsersOnly[adminIndex],
-        id: 'user_master_admin',
-        username: 'shashvatbiswas',
-        email: 'aaravaadit2002@gmail.com',
-        artistName: realUsersOnly[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
-        isAdmin: true,
-        verified: true
-      };
-    } else {
-      realUsersOnly.unshift(masterAdminUser);
+    if (!localStorage.getItem(DB_KEYS.USERS)) {
+      localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
     }
-
-    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(realUsersOnly));
-    localStorage.setItem('stagepass_db_version', DB_VERSION_KEY);
-  }
-
-  if (!localStorage.getItem(DB_KEYS.USERS)) {
-    localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
-  }
-  if (!localStorage.getItem(DB_KEYS.ASSETS)) {
-    localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify([]));
-  }
-  if (!localStorage.getItem(DB_KEYS.COLLABS)) {
-    localStorage.setItem(DB_KEYS.COLLABS, JSON.stringify([]));
-  }
-  if (!localStorage.getItem(DB_KEYS.PURCHASES)) {
-    localStorage.setItem(DB_KEYS.PURCHASES, JSON.stringify([]));
+    if (!localStorage.getItem(DB_KEYS.ASSETS)) {
+      localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(DB_KEYS.COLLABS)) {
+      localStorage.setItem(DB_KEYS.COLLABS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(DB_KEYS.PURCHASES)) {
+      localStorage.setItem(DB_KEYS.PURCHASES, JSON.stringify([]));
+    }
+  } catch (err) {
+    console.warn('LocalStorage restricted, initializing memoryStore fallback:', err);
+    memoryStore[DB_KEYS.USERS] = [masterAdminUser];
+    memoryStore[DB_KEYS.ASSETS] = [];
+    memoryStore[DB_KEYS.COLLABS] = [];
+    memoryStore[DB_KEYS.PURCHASES] = [];
   }
 };
 
