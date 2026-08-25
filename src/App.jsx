@@ -8,6 +8,8 @@ import AudioPlayer from './components/AudioPlayer';
 import VerificationModal from './components/VerificationModal';
 import AdminPanel from './components/AdminPanel';
 import { authAPI, initDB } from './api/db';
+import { stripeAPI } from './utils/stripe';
+import { cloudStorageAPI } from './utils/supabase';
 import { 
   Music, 
   Compass, 
@@ -22,7 +24,10 @@ import {
   Award, 
   Sparkles,
   Disc,
-  ShieldCheck
+  ShieldCheck,
+  Smartphone,
+  CreditCard,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function App() {
@@ -43,11 +48,35 @@ export default function App() {
   const [purchaseTrigger, setPurchaseTrigger] = useState(0);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [rechargePaymentMethod, setRechargePaymentMethod] = useState('stripe');
+  const [rechargeLoading, setRechargeLoading] = useState(false);
+
   useEffect(() => {
     initDB();
     const session = authAPI.getCurrentSession();
     if (session) setCurrentUser(session);
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) {
+      addToast('To install StagePass App: tap Share or Add to Home Screen in browser menu', 'info');
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      addToast('StagePass Installed as Native App!', 'success');
+    }
+    setDeferredPrompt(null);
+  };
 
   const addToast = (message, type = 'success') => {
     const id = Date.now();
@@ -72,17 +101,31 @@ export default function App() {
 
   const handleRechargeSubmit = async (e) => {
     e.preventDefault();
-    if (parseFloat(rechargeAmount) <= 0) {
+    const amt = parseFloat(rechargeAmount);
+    if (isNaN(amt) || amt <= 0) {
       addToast('Please enter a valid amount', 'error');
       return;
     }
+
+    setRechargeLoading(true);
     try {
-      const newBalance = await authAPI.rechargeWallet(currentUser.username, rechargeAmount);
-      setCurrentUser({ ...currentUser, balance: newBalance });
-      addToast(`Recharged! Added ₹${rechargeAmount}. Balance: ₹${newBalance.toFixed(2)}`, 'success');
+      // Process Stripe Payment (Cards / UPI)
+      const txn = await stripeAPI.processPayment({
+        amount: amt,
+        currency: 'INR',
+        paymentMethod: rechargePaymentMethod,
+        customerEmail: currentUser.email,
+        description: `StagePass Wallet Deposit (₹${amt})`
+      });
+
+      const newBalance = await authAPI.rechargeWallet(currentUser.username, amt);
+      setCurrentUser(prev => ({ ...prev, balance: newBalance }));
+      addToast(`Stripe Payment Success (${txn.receiptNumber})! Added ₹${amt}. Balance: ₹${(newBalance || 0).toFixed(2)}`, 'success');
       setIsRechargeOpen(false);
     } catch (err) {
-      addToast(err.message, 'error');
+      addToast(err.message || 'Payment processing failed', 'error');
+    } finally {
+      setRechargeLoading(false);
     }
   };
 
@@ -215,6 +258,15 @@ export default function App() {
 
         {/* Right: Wallet + Avatar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Native PWA App Install Button */}
+          <button
+            onClick={handleInstallApp}
+            className="btn btn-secondary"
+            style={{ borderRadius: '10px', padding: '5px 12px', fontSize: '11px', gap: '6px', border: '1px solid rgba(0,240,255,0.3)' }}
+          >
+            <Smartphone size={14} style={{ color: 'var(--accent-cyan)' }} /> INSTALL APP
+          </button>
+
           {/* Admin Shield Button */}
           {currentUser.isAdmin && (
             <button
@@ -378,8 +430,36 @@ export default function App() {
                   </button>
                 ))}
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', height: '42px', borderRadius: '10px', fontSize: '14px' }}>
-                Add ₹{rechargeAmount} to Wallet
+              {/* Payment Method Selector */}
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label className="form-label">Payment Method</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setRechargePaymentMethod('card')}
+                    className={`btn ${rechargePaymentMethod === 'card' ? 'btn-cyan' : 'btn-secondary'}`}
+                    style={{ height: '36px', fontSize: '11px', borderRadius: '8px', gap: '6px' }}
+                  >
+                    <CreditCard size={14} /> Card / Netbanking
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRechargePaymentMethod('upi')}
+                    className={`btn ${rechargePaymentMethod === 'upi' ? 'btn-cyan' : 'btn-secondary'}`}
+                    style={{ height: '36px', fontSize: '11px', borderRadius: '8px', gap: '6px' }}
+                  >
+                    <Smartphone size={14} /> UPI (GPay/PhonePe)
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={rechargeLoading}
+                className="btn btn-primary" 
+                style={{ width: '100%', height: '42px', borderRadius: '10px', fontSize: '14px' }}
+              >
+                {rechargeLoading ? 'Processing via Stripe...' : `Pay ₹${rechargeAmount} via Stripe`}
               </button>
             </form>
           </div>
