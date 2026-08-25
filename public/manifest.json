@@ -1,0 +1,42 @@
+{
+  "name": "StagePass",
+  "short_name": "StagePass",
+  "description": "Creative Assets & Music Licensing Platform — Side A is free. Flip it to own Side B.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050409",
+  "theme_color": "#050409",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["music", "entertainment", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Discover",
+      "short_name": "Discover",
+      "description": "Browse creative assets",
+      "url": "/?tab=discover"
+    },
+    {
+      "name": "Creator Studio",
+      "short_name": "Studio",
+      "description": "Manage your paywalls",
+      "url": "/?tab=studio"
+    }
+  ]
+}
