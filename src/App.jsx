@@ -106,6 +106,17 @@ export default function App() {
     setPurchaseTrigger(t => t + 1);
   };
 
+  const handleAdminQuickLaunch = async () => {
+    try {
+      const adminUser = await authAPI.login('aaravaadit2002@gmail.com', 'admin-sideb-2025');
+      setCurrentUser(adminUser);
+      setIsAdminOpen(true);
+      addToast('Master Admin Console Unlocked', 'success');
+    } catch (err) {
+      addToast(err.message, 'error');
+    }
+  };
+
   // Login Screen
   if (!currentUser) {
     return (
@@ -128,7 +139,20 @@ export default function App() {
           ))}
         </div>
 
-        <Login onLoginSuccess={handleLoginSuccess} addToast={addToast} />
+        <Login 
+          onLoginSuccess={handleLoginSuccess} 
+          addToast={addToast} 
+          onOpenAdmin={handleAdminQuickLaunch}
+        />
+
+        {isAdminOpen && (
+          <AdminPanel 
+            isOpen={isAdminOpen} 
+            onClose={() => setIsAdminOpen(false)} 
+            addToast={addToast}
+            currentUser={{ username: 'shashvatbiswas', artistName: 'Shashvat Biswas (Master Admin)', isAdmin: true }}
+          />
+        )}
       </>
     );
   }

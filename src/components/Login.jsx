@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { authAPI } from '../api/db';
 
-export default function Login({ onLoginSuccess, addToast }) {
+export default function Login({ onLoginSuccess, addToast, onOpenAdmin }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   
@@ -128,6 +128,11 @@ export default function Login({ onLoginSuccess, addToast }) {
         </nav>
         <div className="top-actions">
           <button className="air-pill" type="button" onClick={() => addToast('ON AIR BROADCAST ACTIVE', 'Streaming Side A indie radio frequencies.')}><i></i> ON AIR</button>
+          {onOpenAdmin && (
+            <button className="preview-button" type="button" onClick={onOpenAdmin} style={{ background: 'linear-gradient(135deg, #f4cf72, #bd79ed)', color: '#100e19', fontWeight: 800 }}>
+              🛡️ ADMIN CONSOLE
+            </button>
+          )}
           <button className="preview-button" type="button" onClick={scrollToPlayer}><span>◉</span> Preview mixtape</button>
         </div>
       </header>
