@@ -1,6 +1,10 @@
-// StagePass Virtual Database & API Simulation
+// StagePass Virtual Database & Enterprise API Engine
 import { PRESET_AUDIO_TRACKS, PRESET_COVERS, PRESET_AVATARS } from '../utils/presets';
 import { addSecurityLog } from '../utils/security';
+import { generateJWT, verifyJWT, checkPermission } from '../utils/iam';
+import { recordLedgerTransaction } from '../utils/ledger';
+import { generateISRC, generateISWC, createSmartSplitContract } from '../utils/drm';
+import { publish, CHANNELS } from '../utils/eventBus';
 
 // Helper to simulate network latency
 export const sleep = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
@@ -119,10 +123,12 @@ export const authAPI = {
       throw new Error('Invalid username/email or password');
     }
     
-    const sessionUser = { ...user };
+    const token = generateJWT(user);
+    const sessionUser = { ...user, token };
     delete sessionUser.password; // strip password
     localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
-    addSecurityLog('USER_LOGIN', `User session authenticated: ${user.artistName} (${user.username})`, user.username);
+    addSecurityLog('USER_LOGIN', `User session authenticated via JWT: ${user.artistName} (${user.username})`, user.username);
+    publish(CHANNELS.USER_ACTIVITY, { action: 'USER_LOGIN', username: user.username, token });
     return sessionUser;
   },
 
@@ -162,15 +168,21 @@ export const authAPI = {
     users.push(newUser);
     saveData(DB_KEYS.USERS, users);
 
-    // Save session
-    const sessionUser = { ...newUser };
+    // Save session with JWT
+    const token = generateJWT(newUser);
+    const sessionUser = { ...newUser, token };
     delete sessionUser.password;
     localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
     addSecurityLog('USER_REGISTER', `New creator registered: ${newUser.artistName} (@${newUser.username} / ${newUser.email})`, newUser.username);
+    publish(CHANNELS.USER_ACTIVITY, { action: 'USER_REGISTER', username: newUser.username, email: newUser.email });
     return sessionUser;
   },
 
   logout: () => {
+    const current = authAPI.getCurrentSession();
+    if (current) {
+      publish(CHANNELS.USER_ACTIVITY, { action: 'USER_LOGOUT', username: current.username });
+    }
     localStorage.removeItem(DB_KEYS.SESSION);
   },
 
@@ -187,10 +199,11 @@ export const authAPI = {
     // Update current session if matching
     const currentSession = authAPI.getCurrentSession();
     if (currentSession && currentSession.username === username) {
-      const sessionUser = { ...updatedUser };
+      const sessionUser = { ...updatedUser, token: currentSession.token };
       delete sessionUser.password;
       localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
     }
+    publish(CHANNELS.USER_ACTIVITY, { action: 'PROFILE_UPDATED', username });
     return updatedUser;
   },
 
@@ -201,6 +214,16 @@ export const authAPI = {
     
     users[index].balance += parseFloat(amount);
     saveData(DB_KEYS.USERS, users);
+
+    // Ledger Entry & Event Stream
+    recordLedgerTransaction({
+      type: 'WALLET_RECHARGE',
+      amount,
+      payerUsername: username,
+      payeeUsername: username,
+      description: 'Platform Wallet Recharge Deposit'
+    });
+    publish(CHANNELS.LEDGER_TRANSACTIONS, { action: 'WALLET_RECHARGE', username, amount });
 
     // Update session
     const currentSession = authAPI.getCurrentSession();
@@ -448,8 +471,13 @@ export const assetsAPI = {
     
     if (!currentUser) throw new Error('Not logged in');
 
+    const isrc = generateISRC();
+    const splitContract = createSmartSplitContract(assetData.title, currentUser.username);
+
     const newAsset = {
       id: `asset-${Date.now()}`,
+      isrc,
+      splitContract,
       creatorId: currentUser.username,
       creatorName: currentUser.artistName,
       creatorRoles: currentUser.roles,
@@ -483,6 +511,8 @@ export const assetsAPI = {
 
     assets.push(newAsset);
     saveData(DB_KEYS.ASSETS, assets);
+    addSecurityLog('ASSET_UPLOAD', `New track published: "${newAsset.title}" [ISRC: ${isrc}]`, currentUser.username);
+    publish(CHANNELS.CATALOG_UPDATES, { action: 'TRACK_PUBLISHED', isrc, title: newAsset.title, creator: currentUser.username });
     return newAsset;
   },
 
@@ -579,6 +609,19 @@ export const assetsAPI = {
 
     purchases.push(newPurchase);
     saveData(DB_KEYS.PURCHASES, purchases);
+
+    // Double-Entry Accounting Ledger Record
+    recordLedgerTransaction({
+      type: 'ASSET_LICENSE',
+      amount: price,
+      payerUsername: currentUser.username,
+      payeeUsername: asset.creatorId,
+      referenceId: asset.id,
+      description: `Side B Licensing Rights for "${asset.title}" (${licenseType})`
+    });
+
+    addSecurityLog('ASSET_PURCHASE', `Purchased Side B license for "${asset.title}" (₹${price})`, currentUser.username);
+    publish(CHANNELS.LEDGER_TRANSACTIONS, { action: 'ASSET_PURCHASED', buyerUsername: currentUser.username, title: asset.title, price });
 
     return newPurchase;
   }
