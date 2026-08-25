@@ -142,28 +142,57 @@ export default function Discover({
   return (
     <div style={{ padding: '32px 0 80px 0', zIndex: 1, position: 'relative' }}>
       
+      {/* Marquee Ticker Ribbon */}
+      <div className="ticker-ribbon" style={{ marginBottom: '36px', marginTop: '-12px' }}>
+        <div className="ticker-track font-pixel" style={{ fontSize: '10px', color: '#e9d5ff', letterSpacing: '2px' }}>
+          {[...Array(3)].map((_, idx) => (
+            <React.Fragment key={idx}>
+              <span>SIDE B PAID</span> <span style={{ color: '#ec4899' }}>◆</span>
+              <span>FAIR PAYOUTS</span> <span style={{ color: '#00f0ff' }}>◆</span>
+              <span>INDIE FIRST</span> <span style={{ color: '#ec4899' }}>◆</span>
+              <span>CASSETTE ECONOMY</span> <span style={{ color: '#f59e0b' }}>◆</span>
+              <span>REMIX-READY STEMS</span> <span style={{ color: '#00f0ff' }}>◆</span>
+              <span>INSTANT LICENSING</span> <span style={{ color: '#ec4899' }}>◆</span>
+              <span>SIDE A IS FREE</span> <span style={{ color: '#22c55e' }}>◆</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
       {/* Search Header Banner */}
       <section style={{ textAlign: 'center', marginBottom: '40px' }}>
         <div className="container" style={{ maxWidth: '750px' }}>
           
-          <div className="badge badge-primary" style={{ marginBottom: '16px', letterSpacing: '2px' }}>
-            <Sparkles size={10} style={{ marginRight: '4px' }} /> StagePass Registry
+          <div className="badge font-mono" style={{ marginBottom: '16px', letterSpacing: '2px', background: 'rgba(147, 51, 234, 0.15)', border: '1px solid rgba(147, 51, 234, 0.4)', color: '#c084fc', padding: '6px 16px', borderRadius: '20px' }}>
+            <Sparkles size={12} style={{ marginRight: '6px', color: '#00f0ff' }} /> STAGEPASS VAULT CATALOG
           </div>
 
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '12px' }}>
-            Creative Assets & Licensing Registry
+          <h2 className="font-orbitron" style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 900,
+            letterSpacing: '1px',
+            marginBottom: '14px',
+            textTransform: 'uppercase'
+          }}>
+            <span style={{ background: 'linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              SIDE A IS FREE.
+            </span>{' '}
+            <span style={{ background: 'linear-gradient(90deg, #f43f5e 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              OWN SIDE B.
+            </span>
           </h2>
           
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', marginBottom: '30px', lineHeight: '1.5' }}>
+          <p style={{ color: '#94a3b8', fontSize: '1rem', marginBottom: '30px', lineHeight: '1.6' }}>
             Inspect waveforms, unlock preview streams, and secure intellectual property rights splits.
           </p>
 
           {/* Search bar */}
-          <form onSubmit={handleSearchSubmit} className="glass-panel glow-purple" style={{
+          <form onSubmit={handleSearchSubmit} className="glass-panel glow-pink" style={{
             display: 'flex',
             padding: '6px 8px 6px 16px',
             alignItems: 'center',
-            borderRadius: '16px'
+            borderRadius: '16px',
+            border: '1.5px solid rgba(236, 72, 153, 0.3)'
           }}>
             <Search size={18} style={{ color: 'var(--accent-purple)', marginRight: '10px' }} />
             
