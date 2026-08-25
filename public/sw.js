@@ -1,5 +1,5 @@
-// Service Worker Cache Invalidation File
-self.addEventListener('install', (event) => {
+// Service Worker Self-Unregister & Network Pass-Through
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
@@ -15,6 +15,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Pass through directly to network without caching
-  return;
+  // Always fetch live from network to prevent blank/vanishing responses
+  event.respondWith(fetch(event.request));
 });
