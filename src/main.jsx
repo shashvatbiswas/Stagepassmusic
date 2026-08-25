@@ -21,8 +21,13 @@ class ErrorBoundary extends Component {
     try {
       localStorage.clear();
       sessionStorage.clear();
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        });
+      }
     } catch (e) {}
-    window.location.reload();
+    window.location.href = window.location.origin + '?v=' + Date.now();
   };
 
   render() {
