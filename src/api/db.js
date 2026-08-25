@@ -35,54 +35,54 @@ const initialAssets = [];
 const initialCollabs = [];
 const initialPurchases = [];
 
-// Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
+// // Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
 export const initDB = () => {
   localStorage.removeItem(DB_KEYS.SESSION);
-  const seeded = localStorage.getItem('stagepass_seeded_v9');
-  if (!seeded) {
-    const existingRaw = localStorage.getItem(DB_KEYS.USERS);
-    let usersList = existingRaw ? JSON.parse(existingRaw) : [];
-
-    // Filter out old demo dummy users
-    usersList = usersList.filter(u => 
-      !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
-    );
-
-    // Ensure shashvatbiswas / aaravaadit2002@gmail.com exists with isAdmin: true
-    const adminIndex = usersList.findIndex(u => 
-      u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat'
-    );
-
-    if (adminIndex !== -1) {
-      usersList[adminIndex] = {
-        ...usersList[adminIndex],
-        username: 'shashvatbiswas',
-        email: 'aaravaadit2002@gmail.com',
-        artistName: usersList[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
-        isAdmin: true,
-        verified: true
-      };
-    } else {
-      usersList.unshift(masterAdminUser);
-    }
-
-    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(usersList));
-    localStorage.setItem('stagepass_seeded_v9', 'true');
+  
+  let usersList = [];
+  try {
+    const raw = localStorage.getItem(DB_KEYS.USERS);
+    usersList = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    usersList = [];
   }
-  if (!localStorage.getItem(DB_KEYS.USERS)) {
-    localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
+
+  // Filter out old demo dummy users
+  usersList = usersList.filter(u => 
+    !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
+  );
+
+  // Ensure shashvatbiswas / aaravaadit2002@gmail.com exists with isAdmin: true
+  const adminIndex = usersList.findIndex(u => 
+    u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat'
+  );
+
+  if (adminIndex !== -1) {
+    usersList[adminIndex] = {
+      ...usersList[adminIndex],
+      id: usersList[adminIndex].id || 'user_master_admin',
+      username: 'shashvatbiswas',
+      email: 'aaravaadit2002@gmail.com',
+      artistName: usersList[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
+      isAdmin: true,
+      verified: true
+    };
+  } else {
+    usersList.unshift(masterAdminUser);
   }
+
+  localStorage.setItem(DB_KEYS.USERS, JSON.stringify(usersList));
+
   if (!localStorage.getItem(DB_KEYS.ASSETS)) {
-    localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify(initialAssets));
+    localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify([]));
   }
   if (!localStorage.getItem(DB_KEYS.COLLABS)) {
-    localStorage.setItem(DB_KEYS.COLLABS, JSON.stringify(initialCollabs));
+    localStorage.setItem(DB_KEYS.COLLABS, JSON.stringify([]));
   }
   if (!localStorage.getItem(DB_KEYS.PURCHASES)) {
-    localStorage.setItem(DB_KEYS.PURCHASES, JSON.stringify(initialPurchases));
+    localStorage.setItem(DB_KEYS.PURCHASES, JSON.stringify([]));
   }
 };
-
 
 // API Fetch Helpers
 const getData = (key) => {
@@ -107,7 +107,13 @@ export const authAPI = {
   login: async (username, password) => {
     await sleep(400);
     const users = getData(DB_KEYS.USERS);
-    const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+    let user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+    
+    // Master Admin fallback if logging in with Master Admin credentials
+    if (!user && (username === 'shashvatbiswas' || username === 'aaravaadit2002@gmail.com' || username === 'admin@stagepass.com' || username === 'shashvat')) {
+      user = users.find(u => u.isAdmin);
+    }
+
     if (!user) {
       addSecurityLog('LOGIN_FAILED', `Failed login attempt for username: ${username}`, username);
       throw new Error('Invalid username/email or password');
@@ -125,14 +131,15 @@ export const authAPI = {
     const users = getData(DB_KEYS.USERS);
     
     // Validations
-    if (users.some(u => u.username === userData.username)) {
+    if (users.some(u => u.username.toLowerCase() === userData.username.toLowerCase())) {
       throw new Error('Username is already taken');
     }
-    if (users.some(u => u.email === userData.email)) {
+    if (users.some(u => u.email.toLowerCase() === userData.email.toLowerCase())) {
       throw new Error('Email is already registered');
     }
 
     const newUser = {
+      id: 'user_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       username: userData.username,
       password: userData.password,
       email: userData.email,
@@ -144,7 +151,7 @@ export const authAPI = {
       languages: userData.languages || [],
       followers: [],
       following: [],
-      balance: 0.0, // Start with ₹0 balance for fresh accounts
+      balance: 0.0,
       profilePhoto: userData.profilePhoto || PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)],
       links: userData.links || {},
       isVerified: false,
@@ -159,7 +166,7 @@ export const authAPI = {
     const sessionUser = { ...newUser };
     delete sessionUser.password;
     localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
-    addSecurityLog('USER_REGISTER', `New creator account registered: ${newUser.artistName} (${newUser.email})`, newUser.username);
+    addSecurityLog('USER_REGISTER', `New creator registered: ${newUser.artistName} (@${newUser.username} / ${newUser.email})`, newUser.username);
     return sessionUser;
   },
 
