@@ -13,7 +13,8 @@ import {
   ChevronRight, 
   Loader2,
   Compass,
-  Sparkles
+  Sparkles,
+  Disc
 } from 'lucide-react';
 
 export default function Discover({ 
