@@ -25,20 +25,7 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
   const [searchUser, setSearchUser] = useState('');
   const [balanceAdjustUserId, setBalanceAdjustUserId] = useState(null);
   const [adjustAmount, setAdjustAmount] = useState('500');
-
-  useEffect(() => {
-    let intervalId = null;
-    if (isOpen) {
-      loadAdminData();
-      // 1-second live real-time auto-polling
-      intervalId = setInterval(() => {
-        loadAdminData();
-      }, 1000);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isOpen]);
+  const [tick, setTick] = useState(0);
 
   const loadAdminData = async () => {
     try {
@@ -46,13 +33,34 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
       const allAssets = await assetsAPI.getAllAssets();
       const allLogs = getSecurityLogs();
 
-      setUsers(allUsers);
-      setAssets(allAssets);
-      setLogs(allLogs);
+      setUsers([...allUsers]);
+      setAssets([...allAssets]);
+      setLogs([...allLogs]);
+      setTick(t => t + 1);
     } catch (err) {
       // Silent catch on poll to avoid toast spam
     }
   };
+
+  useEffect(() => {
+    let intervalId = null;
+    if (isOpen) {
+      loadAdminData();
+      
+      // 1-second live real-time auto-polling
+      intervalId = setInterval(loadAdminData, 1000);
+
+      // Instant 0ms event listeners for multi-tab and real-time app action updates
+      window.addEventListener('storage', loadAdminData);
+      window.addEventListener('stagepass_db_update', loadAdminData);
+
+      return () => {
+        if (intervalId) clearInterval(intervalId);
+        window.removeEventListener('storage', loadAdminData);
+        window.removeEventListener('stagepass_db_update', loadAdminData);
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

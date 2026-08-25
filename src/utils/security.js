@@ -50,6 +50,9 @@ export function addSecurityLog(action, details, username = 'System') {
   logs.unshift(newLog);
   // Keep last 100 security logs
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs.slice(0, 100)));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('stagepass_db_update', { detail: { key: LOGS_KEY } }));
+  }
   return newLog;
 }
 
@@ -78,4 +81,7 @@ export function getSecurityLogs() {
  */
 export function clearSecurityLogs() {
   localStorage.removeItem(LOGS_KEY);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('stagepass_db_update', { detail: { key: LOGS_KEY } }));
+  }
 }

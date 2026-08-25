@@ -69,6 +69,9 @@ const getData = (key) => {
 
 const saveData = (key, data) => {
   localStorage.setItem(key, JSON.stringify(data));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('stagepass_db_update', { detail: { key } }));
+  }
 };
 
 // Auth API Client
