@@ -127,7 +127,7 @@ export default function Login({ onLoginSuccess, addToast }) {
           <a href="#pricing">Pricing</a>
         </nav>
         <div className="top-actions">
-          <button className="air-pill" type="button"><i></i> ON AIR</button>
+          <button className="air-pill" type="button" onClick={() => addToast('ON AIR BROADCAST ACTIVE', 'Streaming Side A indie radio frequencies.')}><i></i> ON AIR</button>
           <button className="preview-button" type="button" onClick={scrollToPlayer}><span>◉</span> Preview mixtape</button>
         </div>
       </header>
@@ -443,10 +443,10 @@ export default function Login({ onLoginSuccess, addToast }) {
         </a>
         <span>© 2025 · Made for indie ears</span>
         <div>
-          <a href="#top">Terms</a>
-          <a href="#top">Privacy</a>
-          <a href="#top">Licensing</a>
-          <a href="#top">Contact</a>
+          <a href="#top" onClick={(e) => { e.preventDefault(); addToast('StagePass Terms of Service', 'v2.4 Mixtape License Agreement.'); }}>Terms</a>
+          <a href="#top" onClick={(e) => { e.preventDefault(); addToast('Privacy Protocol', 'AES-CASSETTE Vault Encryption active.'); }}>Privacy</a>
+          <a href="#top" onClick={(e) => { e.preventDefault(); addToast('Licensing Protocol', 'Keep 90% creator revenue splits.'); }}>Licensing</a>
+          <a href="#top" onClick={(e) => { e.preventDefault(); addToast('Contact Creator Vault', 'Support: producer@resonance.fm'); }}>Contact</a>
         </div>
       </footer>
     </div>
