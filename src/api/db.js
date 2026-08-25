@@ -39,9 +39,12 @@ const initialAssets = [];
 const initialCollabs = [];
 const initialPurchases = [];
 
-// // Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
+let dbInitialized = false;
+
+// Initialize Data in LocalStorage (runs once on application boot)
 export const initDB = () => {
-  localStorage.removeItem(DB_KEYS.SESSION);
+  if (dbInitialized) return;
+  dbInitialized = true;
   
   let usersList = [];
   try {
@@ -53,12 +56,12 @@ export const initDB = () => {
 
   // Filter out old demo dummy users
   usersList = usersList.filter(u => 
-    !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
+    u && u.username && !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
   );
 
   // Ensure shashvatbiswas / aaravaadit2002@gmail.com exists with isAdmin: true
   const adminIndex = usersList.findIndex(u => 
-    u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat'
+    u && (u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat')
   );
 
   if (adminIndex !== -1) {
