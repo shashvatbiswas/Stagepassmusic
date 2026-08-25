@@ -13,12 +13,12 @@ const DB_KEYS = {
   SESSION: 'stagepass_session'
 };
 
-// Master Admin & Creator Seeds
+// Master Admin Seed (Primary Platform Admin)
 const masterAdminUser = {
   id: 'user_master_admin',
-  username: 'shashvat',
-  artistName: 'Shashvat (Master Admin)',
-  email: 'admin@stagepass.com',
+  username: 'shashvatbiswas',
+  artistName: 'Shashvat Biswas (Master Admin)',
+  email: 'aaravaadit2002@gmail.com',
   password: 'admin-sideb-2025',
   roles: ['Producer', 'Master Admin'],
   location: 'Mumbai, IN',
@@ -30,153 +30,47 @@ const masterAdminUser = {
   createdAt: '2025-01-01T00:00:00.000Z'
 };
 
-const initialUsers = [
-  masterAdminUser,
-  {
-    id: 'user_aarav',
-    username: 'aarav_sharma',
-    artistName: 'Aarav Sharma',
-    email: 'aarav@resonance.fm',
-    password: 'password123',
-    roles: ['Singer', 'Vocalist'],
-    location: 'Mumbai, IN',
-    bio: 'Synthwave & Indie Pop Vocalist.',
-    profilePhoto: PRESET_AVATARS[0],
-    balance: 2400.00,
-    verified: true,
-    isAdmin: false
-  },
-  {
-    id: 'user_maya',
-    username: 'maya_lyricist',
-    artistName: 'Maya Sen',
-    email: 'maya@resonance.fm',
-    password: 'password123',
-    roles: ['Lyricist', 'Songwriter'],
-    location: 'Bengaluru, IN',
-    bio: 'Hindi & English songwriter.',
-    profilePhoto: PRESET_AVATARS[1],
-    balance: 1850.00,
-    verified: true,
-    isAdmin: false
-  },
-  {
-    id: 'user_rohan',
-    username: 'rohan_beats',
-    artistName: 'Rohan Kapoor',
-    email: 'rohan@resonance.fm',
-    password: 'password123',
-    roles: ['Producer', 'Beatmaker'],
-    location: 'Delhi, IN',
-    bio: 'Lo-fi & Hip Hop Beat producer.',
-    profilePhoto: PRESET_AVATARS[2],
-    balance: 4200.00,
-    verified: false,
-    isAdmin: false
-  },
-  {
-    id: 'user_dev',
-    username: 'dev_guitarist',
-    artistName: 'Dev Malhotra',
-    email: 'dev@resonance.fm',
-    password: 'password123',
-    roles: ['Vocalist', 'Guitarist'],
-    location: 'Chandigarh, IN',
-    bio: 'Acoustic & Synthwave Rock artist.',
-    profilePhoto: PRESET_AVATARS[3],
-    balance: 3100.00,
-    verified: true,
-    isAdmin: false
-  }
-];
-
-const initialAssets = [
-  {
-    id: 'asset_01',
-    title: 'Midnight Eclipse',
-    creatorUsername: 'aarav_sharma',
-    creatorName: 'Aarav × Maya',
-    type: 'Song',
-    genre: 'Synthwave',
-    language: 'English',
-    bpm: 92,
-    key: 'F# Minor',
-    price: 1200,
-    audioUrl: PRESET_AUDIO_TRACKS[0],
-    coverArt: PRESET_COVERS[0],
-    description: 'Dark synthwave lead track with Side A free preview hook and locked Side B stems.',
-    viewsCount: 1420,
-    previewPlaysCount: 680,
-    createdTimestamp: Date.now() - 86400000 * 5
-  },
-  {
-    id: 'asset_02',
-    title: 'Starlight Whispers',
-    creatorUsername: 'rohan_beats',
-    creatorName: 'Rohan Kapoor',
-    type: 'Beats',
-    genre: 'Lo-fi',
-    language: 'Instrumental',
-    bpm: 84,
-    key: 'C Major',
-    price: 850,
-    audioUrl: PRESET_AUDIO_TRACKS[1],
-    coverArt: PRESET_COVERS[1],
-    description: 'Chilled lo-fi hip hop beat stems ready for rap or vocal overlay.',
-    viewsCount: 980,
-    previewPlaysCount: 420,
-    createdTimestamp: Date.now() - 86400000 * 3
-  },
-  {
-    id: 'asset_03',
-    title: 'Neon Horizon',
-    creatorUsername: 'dev_guitarist',
-    creatorName: 'Dev Malhotra',
-    type: 'Instrumentals',
-    genre: 'Rock',
-    language: 'Instrumental',
-    bpm: 118,
-    key: 'E Minor',
-    price: 1500,
-    audioUrl: PRESET_AUDIO_TRACKS[2],
-    coverArt: PRESET_COVERS[2],
-    description: 'Electric lead guitar riff & synth bass stems for action scenes and sync licensing.',
-    viewsCount: 1150,
-    previewPlaysCount: 510,
-    createdTimestamp: Date.now() - 86400000 * 2
-  }
-];
-
-const initialCollabs = [
-  {
-    id: 'collab_01',
-    creatorUsername: 'rohan_beats',
-    creatorName: 'Rohan Kapoor',
-    title: 'Female Vocalist Needed for Cyberpunk Track',
-    genre: 'Synthwave / EDM',
-    description: 'Looking for a powerful vocal hook over a 95 BPM synth beat. 50/50 Side B revenue split.',
-    rolesNeeded: ['Vocalist', 'Lyricist'],
-    applicantUsernames: ['maya_lyricist'],
-    status: 'Open',
-    createdTimestamp: Date.now() - 86400000 * 4
-  }
-];
-
+const initialUsers = [masterAdminUser];
+const initialAssets = [];
+const initialCollabs = [];
 const initialPurchases = [];
 
 // Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
 export const initDB = () => {
   localStorage.removeItem(DB_KEYS.SESSION);
-  const seeded = localStorage.getItem('stagepass_seeded_v8');
+  const seeded = localStorage.getItem('stagepass_seeded_v9');
   if (!seeded) {
-    localStorage.removeItem(DB_KEYS.USERS);
-    localStorage.removeItem(DB_KEYS.ASSETS);
-    localStorage.removeItem(DB_KEYS.COLLABS);
-    localStorage.removeItem(DB_KEYS.PURCHASES);
-    localStorage.setItem('stagepass_seeded_v8', 'true');
+    const existingRaw = localStorage.getItem(DB_KEYS.USERS);
+    let usersList = existingRaw ? JSON.parse(existingRaw) : [];
+
+    // Filter out old demo dummy users
+    usersList = usersList.filter(u => 
+      !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
+    );
+
+    // Ensure shashvatbiswas / aaravaadit2002@gmail.com exists with isAdmin: true
+    const adminIndex = usersList.findIndex(u => 
+      u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat'
+    );
+
+    if (adminIndex !== -1) {
+      usersList[adminIndex] = {
+        ...usersList[adminIndex],
+        username: 'shashvatbiswas',
+        email: 'aaravaadit2002@gmail.com',
+        artistName: usersList[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
+        isAdmin: true,
+        verified: true
+      };
+    } else {
+      usersList.unshift(masterAdminUser);
+    }
+
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(usersList));
+    localStorage.setItem('stagepass_seeded_v9', 'true');
   }
   if (!localStorage.getItem(DB_KEYS.USERS)) {
-    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(initialUsers));
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
   }
   if (!localStorage.getItem(DB_KEYS.ASSETS)) {
     localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify(initialAssets));
