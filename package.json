@@ -1,7 +1,9 @@
 {
   "name": "stagepass",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "StagePass Creative Assets & Music Licensing Platform",
+  "author": "Shashvat Biswas <aaravaadit2002@gmail.com>",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -10,7 +12,7 @@
     "preview": "vite preview",
     "mobile:sync": "npm run build && npx cap sync",
     "electron:start": "electron .",
-    "electron:build": "npm run build && electron-builder"
+    "electron:build": "npm run build && powershell -Command \"Remove-Item -Path 'dist-desktop' -Recurse -Force -ErrorAction SilentlyContinue\" && electron-builder"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^6.8.2",
@@ -37,5 +39,29 @@
     "electron-builder": "^26.15.3",
     "oxlint": "^1.79.0",
     "vite": "^8.2.2"
+  },
+  "build": {
+    "appId": "com.stagepass.desktop",
+    "productName": "StagePass Desktop",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

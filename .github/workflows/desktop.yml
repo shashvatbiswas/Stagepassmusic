@@ -1,0 +1,33 @@
+name: Build Desktop App (.exe & .dmg)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-desktop-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install NPM Dependencies
+        run: npm ci || npm install
+
+      - name: Build Desktop Application Installer (.exe)
+        run: npm run electron:build
+
+      - name: Upload Windows Desktop Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StagePass-Desktop-Windows-EXE
+          path: dist-desktop/*.exe
+          retention-days: 30
