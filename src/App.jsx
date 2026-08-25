@@ -19,7 +19,8 @@ import {
   PlusCircle, 
   X, 
   Award, 
-  Sparkles 
+  Sparkles,
+  Disc 
 } from 'lucide-react';
 
 export default function App() {
@@ -124,28 +125,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* Login Header */}
-        <header style={{
-          position: 'sticky', top: 0, zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '16px 20px',
-          background: 'rgba(5,4,9,0.9)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid var(--border-glass)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))',
-              padding: '6px', borderRadius: '8px', display: 'flex'
-            }}>
-              <Music size={20} color="#fff" />
-            </div>
-            <span style={{ fontSize: '1.3rem', fontWeight: 700, background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              StagePass
-            </span>
-          </div>
-        </header>
-
         <Login onLoginSuccess={handleLoginSuccess} addToast={addToast} />
       </>
     );
@@ -176,16 +155,17 @@ export default function App() {
       }}>
         {/* Logo */}
         <div onClick={() => { setActiveTab('discover'); setViewProfileUsername(null); }}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))',
-            padding: '6px', borderRadius: '8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
+            background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+            padding: '7px', borderRadius: '8px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 15px rgba(236,72,153,0.4)'
           }}>
-            <Music size={18} color="#fff" />
+            <Disc size={18} color="#fff" />
           </div>
-          <span style={{ fontSize: '1.2rem', fontWeight: 700, background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-purple))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            StagePass
+          <span className="font-orbitron" style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '1px', background: 'linear-gradient(90deg, #ffffff, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            STAGEPASS
           </span>
         </div>
 
