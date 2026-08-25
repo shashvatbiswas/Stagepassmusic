@@ -528,29 +528,31 @@ input:checked + .slider:before {
 }
 
 .toast {
-  background: rgba(18, 19, 28, 0.95);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 12px 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: rgba(24, 14, 37, 0.96);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(199, 145, 231, 0.5);
+  border-radius: 14px;
+  padding: 16px 28px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
   color: #fff;
-  animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 13px;
+  line-height: 1.5;
+  animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.toast-success { border-color: rgba(16, 185, 129, 0.4); }
-.toast-warning { border-color: rgba(255, 153, 0, 0.4); }
-.toast-error { border-color: rgba(239, 68, 68, 0.4); }
+.toast-success { border-color: rgba(16, 185, 129, 0.5); }
+.toast-warning { border-color: rgba(255, 153, 0, 0.5); }
+.toast-error { border-color: rgba(239, 68, 68, 0.5); }
 .toast-info { border-color: var(--accent-cyan); }
 
 .mono {
   font-family: 'Share Tech Mono', ui-monospace, monospace;
 }
 
-/* Animation Keyframes */
+/* Animation Keyframes — Smooth, gentle slide & fade */
 @keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  0% { transform: translateY(30px) scale(0.94); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 @keyframes spin {

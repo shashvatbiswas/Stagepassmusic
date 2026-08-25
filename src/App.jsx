@@ -54,7 +54,7 @@ export default function App() {
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
+    }, 7000);
   };
 
   const handleLoginSuccess = (user) => {
