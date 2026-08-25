@@ -6,6 +6,7 @@ import CollaborationHub from './components/CollaborationHub';
 import Profile from './components/Profile';
 import AudioPlayer from './components/AudioPlayer';
 import VerificationModal from './components/VerificationModal';
+import AdminPanel from './components/AdminPanel';
 import { authAPI, initDB } from './api/db';
 import { 
   Music, 
@@ -20,7 +21,8 @@ import {
   X, 
   Award, 
   Sparkles,
-  Disc 
+  Disc,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function App() {
@@ -39,6 +41,7 @@ export default function App() {
   
   const [activeCertificate, setActiveCertificate] = useState(null);
   const [purchaseTrigger, setPurchaseTrigger] = useState(0);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {
     initDB();
@@ -188,6 +191,17 @@ export default function App() {
 
         {/* Right: Wallet + Avatar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Admin Shield Button */}
+          {currentUser.isAdmin && (
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="btn btn-amber"
+              style={{ borderRadius: '10px', padding: '5px 12px', fontSize: '11px', gap: '6px' }}
+            >
+              <ShieldCheck size={14} /> ADMIN CONSOLE
+            </button>
+          )}
+
           {/* Wallet */}
           <div onClick={() => setIsRechargeOpen(true)} style={{
             display: 'flex', alignItems: 'center', gap: '6px',
@@ -352,6 +366,14 @@ export default function App() {
       {activeCertificate && (
         <VerificationModal purchase={activeCertificate} onClose={() => setActiveCertificate(null)} />
       )}
+
+      {/* ── MASTER ADMIN SECURITY PANEL ── */}
+      <AdminPanel 
+        isOpen={isAdminOpen} 
+        onClose={() => setIsAdminOpen(false)} 
+        addToast={addToast} 
+        currentUser={currentUser} 
+      />
 
       {/* ── TOAST NOTIFICATIONS ── */}
       <div className="toast-container">

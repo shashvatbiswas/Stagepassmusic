@@ -12,8 +12,24 @@ const DB_KEYS = {
   SESSION: 'stagepass_session'
 };
 
-// No seed data — app starts fresh
-const initialUsers = [];
+// Master Admin Seed
+const masterAdminUser = {
+  id: 'user_master_admin',
+  username: 'shashvat',
+  artistName: 'Shashvat (Master Admin)',
+  email: 'admin@stagepass.com',
+  password: 'admin-sideb-2025',
+  roles: ['Producer', 'Master Admin'],
+  location: 'Mumbai, IN',
+  bio: 'Platform Creator & Master System Administrator of StagePass / Side A.',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+  balance: 100000.00,
+  verified: true,
+  isAdmin: true,
+  createdAt: '2025-01-01T00:00:00.000Z'
+};
+
+const initialUsers = [masterAdminUser];
 const initialAssets = [];
 const initialCollabs = [];
 const initialPurchases = [];
@@ -21,13 +37,13 @@ const initialPurchases = [];
 // Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
 export const initDB = () => {
   localStorage.removeItem(DB_KEYS.SESSION);
-  const seeded = localStorage.getItem('stagepass_seeded_v6');
+  const seeded = localStorage.getItem('stagepass_seeded_v7');
   if (!seeded) {
     localStorage.removeItem(DB_KEYS.USERS);
     localStorage.removeItem(DB_KEYS.ASSETS);
     localStorage.removeItem(DB_KEYS.COLLABS);
     localStorage.removeItem(DB_KEYS.PURCHASES);
-    localStorage.setItem('stagepass_seeded_v6', 'true');
+    localStorage.setItem('stagepass_seeded_v7', 'true');
   }
   if (!localStorage.getItem(DB_KEYS.USERS)) {
     localStorage.setItem(DB_KEYS.USERS, JSON.stringify(initialUsers));
@@ -765,3 +781,59 @@ export const analyticsAPI = {
     };
   }
 };
+
+// Admin Moderation API
+export const adminAPI = {
+  getAllUsers: async () => {
+    return getData(DB_KEYS.USERS);
+  },
+
+  toggleVerification: async (userId) => {
+    const users = getData(DB_KEYS.USERS);
+    const index = users.findIndex(u => u.id === userId);
+    if (index !== -1) {
+      users[index].verified = !users[index].verified;
+      saveData(DB_KEYS.USERS, users);
+      return users[index];
+    }
+    throw new Error('User not found');
+  },
+
+  toggleSuspension: async (userId) => {
+    const users = getData(DB_KEYS.USERS);
+    const index = users.findIndex(u => u.id === userId);
+    if (index !== -1) {
+      users[index].isSuspended = !users[index].isSuspended;
+      saveData(DB_KEYS.USERS, users);
+      return users[index];
+    }
+    throw new Error('User not found');
+  },
+
+  adjustUserBalance: async (userId, amount) => {
+    const users = getData(DB_KEYS.USERS);
+    const index = users.findIndex(u => u.id === userId);
+    if (index !== -1) {
+      const current = parseFloat(users[index].balance) || 0;
+      users[index].balance = Math.max(0, current + parseFloat(amount));
+      saveData(DB_KEYS.USERS, users);
+      return users[index];
+    }
+    throw new Error('User not found');
+  },
+
+  deleteAsset: async (assetId) => {
+    const assets = getData(DB_KEYS.ASSETS);
+    const filtered = assets.filter(a => a.id !== assetId);
+    saveData(DB_KEYS.ASSETS, filtered);
+    return true;
+  },
+
+  deleteCollab: async (collabId) => {
+    const collabs = getData(DB_KEYS.COLLABS);
+    const filtered = collabs.filter(c => c.id !== collabId);
+    saveData(DB_KEYS.COLLABS, filtered);
+    return true;
+  }
+};
+
