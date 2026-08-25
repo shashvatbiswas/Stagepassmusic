@@ -133,8 +133,12 @@ const saveData = (key, data) => {
 // Auth API Client
 export const authAPI = {
   getCurrentSession: () => {
-    const session = localStorage.getItem(DB_KEYS.SESSION);
-    return session ? JSON.parse(session) : null;
+    try {
+      const session = localStorage.getItem(DB_KEYS.SESSION);
+      return session ? JSON.parse(session) : (memoryStore[DB_KEYS.SESSION] || null);
+    } catch (e) {
+      return memoryStore[DB_KEYS.SESSION] || null;
+    }
   },
 
   login: async (username, password) => {
