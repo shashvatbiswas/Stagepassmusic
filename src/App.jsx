@@ -7,6 +7,7 @@ import Profile from './components/Profile';
 import AudioPlayer from './components/AudioPlayer';
 import VerificationModal from './components/VerificationModal';
 import AdminPanel from './components/AdminPanel';
+import DownloadAppsModal from './components/DownloadAppsModal';
 import { authAPI, initDB } from './api/db';
 import { stripeAPI } from './utils/stripe';
 import { cloudStorageAPI } from './utils/supabase';
@@ -160,6 +161,8 @@ export default function App() {
     }
   };
 
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
   // Login Screen
   if (!currentUser) {
     return (
@@ -186,6 +189,7 @@ export default function App() {
           onLoginSuccess={handleLoginSuccess} 
           addToast={addToast} 
           onOpenAdmin={handleAdminQuickLaunch}
+          onOpenDownloads={() => setIsDownloadModalOpen(true)}
         />
 
         {isAdminOpen && (
@@ -194,6 +198,14 @@ export default function App() {
             onClose={() => setIsAdminOpen(false)} 
             addToast={addToast}
             currentUser={{ username: 'shashvatbiswas', artistName: 'Shashvat Biswas (Master Admin)', isAdmin: true }}
+          />
+        )}
+
+        {isDownloadModalOpen && (
+          <DownloadAppsModal
+            isOpen={isDownloadModalOpen}
+            onClose={() => setIsDownloadModalOpen(false)}
+            addToast={addToast}
           />
         )}
       </>
@@ -260,7 +272,7 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Native PWA App Install Button */}
           <button
-            onClick={handleInstallApp}
+            onClick={() => setIsDownloadModalOpen(true)}
             className="btn btn-secondary"
             style={{ borderRadius: '10px', padding: '5px 12px', fontSize: '11px', gap: '6px', border: '1px solid rgba(0,240,255,0.3)' }}
           >
@@ -478,6 +490,15 @@ export default function App() {
         addToast={addToast} 
         currentUser={currentUser} 
       />
+
+      {/* ── DOWNLOAD NATIVE APPS MODAL ── */}
+      {isDownloadModalOpen && (
+        <DownloadAppsModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => setIsDownloadModalOpen(false)}
+          addToast={addToast}
+        />
+      )}
 
       {/* ── TOAST NOTIFICATIONS ── */}
       <div className="toast-container">
