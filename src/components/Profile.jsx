@@ -494,7 +494,7 @@ export default function Profile({
                     style={{ width: '120px', height: '120px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-glass)' }}
                   />
                   <div style={{ flex: 1, minWidth: '240px' }}>
-                    <span className="badge badge-gold" style={{ marginBottom: '10px' }}>SPOTLIGHT OPPORTUNITY</span>
+                    <span className="badge badge-gold" style={{ marginBottom: '10px' }}>FEATURED ASSET</span>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>{featuredAsset.title}</h3>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
