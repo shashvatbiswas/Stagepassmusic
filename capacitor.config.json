@@ -1,0 +1,16 @@
+{
+  "appId": "com.stagepass.music",
+  "appName": "StagePass",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#050409",
+      "showSpinner": false
+    }
+  }
+}
