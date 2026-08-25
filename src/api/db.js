@@ -18,17 +18,16 @@ const initialAssets = [];
 const initialCollabs = [];
 const initialPurchases = [];
 
-// Initialize Data in LocalStorage (always reset to empty on first load)
+// Initialize Data in LocalStorage (always reset session on load to show fresh landing page)
 export const initDB = () => {
-  // Clear any old cached seed data so app starts fresh on landing page
-  const seeded = localStorage.getItem('stagepass_seeded_v5');
+  localStorage.removeItem(DB_KEYS.SESSION);
+  const seeded = localStorage.getItem('stagepass_seeded_v6');
   if (!seeded) {
     localStorage.removeItem(DB_KEYS.USERS);
     localStorage.removeItem(DB_KEYS.ASSETS);
     localStorage.removeItem(DB_KEYS.COLLABS);
     localStorage.removeItem(DB_KEYS.PURCHASES);
-    localStorage.removeItem(DB_KEYS.SESSION);
-    localStorage.setItem('stagepass_seeded_v5', 'true');
+    localStorage.setItem('stagepass_seeded_v6', 'true');
   }
   if (!localStorage.getItem(DB_KEYS.USERS)) {
     localStorage.setItem(DB_KEYS.USERS, JSON.stringify(initialUsers));
