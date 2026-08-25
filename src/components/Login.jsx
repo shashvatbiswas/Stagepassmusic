@@ -278,14 +278,7 @@ export default function Login({ onLoginSuccess, addToast }) {
                 </form>
               )}
 
-              <div className="console-log-title">&gt;_ SANDBOX CONSOLE LOGS</div>
-              <div className="artist-pills">
-                <span onClick={() => handleQuickLogin('aarav_sharma')}><i className="dot pink"></i>AARAV <small>(SINGER)</small></span>
-                <span onClick={() => handleQuickLogin('maya_lyricist')}><i className="dot violet"></i>MAYA <small>(LYRICIST)</small></span>
-                <span onClick={() => handleQuickLogin('rohan_beats')}><i className="dot yellow"></i>ROHAN <small>(BEATMAKER)</small></span>
-                <span onClick={() => handleQuickLogin('dev_guitarist')}><i className="dot green"></i>DEV <small>(VOCALIST)</small></span>
-              </div>
-              <pre className="terminal">
+              <pre className="terminal" style={{ marginTop: '24px' }}>
 [00:12] &gt; booting MuseFlow kernel v2.4...{"\n"}
 [00:13] &gt; connecting to vault.sideA...{"\n"}
 [00:14] &gt; handshake ok · encryption AES-CASSETTE{"\n"}
