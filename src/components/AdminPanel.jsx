@@ -139,11 +139,13 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
     addToast('Security logs cleared', 'info');
   };
 
-  const filteredUsers = users.filter(u => 
-    u.username.toLowerCase().includes(searchUser.toLowerCase()) ||
-    u.artistName.toLowerCase().includes(searchUser.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchUser.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const q = (searchUser || '').toLowerCase();
+    const uname = (u.username || '').toLowerCase();
+    const aname = (u.artistName || '').toLowerCase();
+    const uemail = (u.email || '').toLowerCase();
+    return uname.includes(q) || aname.includes(q) || uemail.includes(q);
+  });
 
   return (
     <div style={{

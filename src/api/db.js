@@ -824,14 +824,27 @@ export const analyticsAPI = {
 // Admin Moderation API
 export const adminAPI = {
   getAllUsers: async () => {
-    return getData(DB_KEYS.USERS);
+    const rawUsers = getData(DB_KEYS.USERS);
+    return rawUsers.map(u => ({
+      ...u,
+      id: u.id || ('user_' + (u.username || Math.random())),
+      username: u.username || 'user',
+      artistName: u.artistName || u.username || 'Creator',
+      email: u.email || 'N/A',
+      roles: Array.isArray(u.roles) ? u.roles : ['Creator'],
+      balance: typeof u.balance === 'number' ? u.balance : (parseFloat(u.balance) || 0),
+      verified: !!(u.verified || u.isVerified),
+      isSuspended: !!u.isSuspended,
+      isAdmin: !!u.isAdmin
+    }));
   },
 
   toggleVerification: async (userId) => {
     const users = getData(DB_KEYS.USERS);
-    const index = users.findIndex(u => u.id === userId);
+    const index = users.findIndex(u => u.id === userId || u.username === userId);
     if (index !== -1) {
       users[index].verified = !users[index].verified;
+      users[index].isVerified = users[index].verified;
       saveData(DB_KEYS.USERS, users);
       return users[index];
     }
@@ -840,7 +853,7 @@ export const adminAPI = {
 
   toggleSuspension: async (userId) => {
     const users = getData(DB_KEYS.USERS);
-    const index = users.findIndex(u => u.id === userId);
+    const index = users.findIndex(u => u.id === userId || u.username === userId);
     if (index !== -1) {
       users[index].isSuspended = !users[index].isSuspended;
       saveData(DB_KEYS.USERS, users);
@@ -851,7 +864,7 @@ export const adminAPI = {
 
   adjustUserBalance: async (userId, amount) => {
     const users = getData(DB_KEYS.USERS);
-    const index = users.findIndex(u => u.id === userId);
+    const index = users.findIndex(u => u.id === userId || u.username === userId);
     if (index !== -1) {
       const current = parseFloat(users[index].balance) || 0;
       users[index].balance = Math.max(0, current + parseFloat(amount));
