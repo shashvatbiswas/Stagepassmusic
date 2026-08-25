@@ -1,5 +1,7 @@
 import React from 'react';
 import { Award, Download, X, Shield, Music } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export default function VerificationModal({ purchase, onClose }) {
   if (!purchase) return null;
@@ -10,8 +12,24 @@ export default function VerificationModal({ purchase, onClose }) {
     year: 'numeric'
   });
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('certificate-pdf-container');
+    if (!element) {
+      window.print();
+      return;
+    }
+    try {
+      const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#0c0a14' });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+      pdf.save(`StagePass_IP_Certificate_${purchase.licenseCertCode || 'REG'}.pdf`);
+    } catch (err) {
+      console.error('PDF export error:', err);
+      window.print();
+    }
   };
 
   return (
@@ -29,7 +47,7 @@ export default function VerificationModal({ purchase, onClose }) {
       zIndex: 1000,
       padding: '20px'
     }}>
-      <div className="glass-panel glow-amber" style={{
+      <div id="certificate-pdf-container" className="glass-panel glow-amber" style={{
         width: '100%',
         maxWidth: '520px',
         padding: '36px',
@@ -176,7 +194,7 @@ export default function VerificationModal({ purchase, onClose }) {
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            onClick={handlePrint}
+            onClick={handleDownloadPDF}
             className="btn btn-amber"
             style={{ flex: 1, height: '40px', borderRadius: '10px', fontSize: '12px' }}
           >

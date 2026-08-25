@@ -10,9 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "framer-motion": "^13.1.1",
+    "howler": "^2.2.4",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.34.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "wavesurfer.js": "^7.12.11"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
