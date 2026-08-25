@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI, assetsAPI } from '../api/db';
 import { getSecurityLogs, addSecurityLog, clearSecurityLogs } from '../utils/security';
+import { getAllLedgerTransactions } from '../utils/ledger';
 import { 
   ShieldCheck, 
   Users, 
@@ -18,10 +19,11 @@ import {
 } from 'lucide-react';
 
 export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'users', 'assets', 'ledger', 'logs'
   const [users, setUsers] = useState([]);
   const [assets, setAssets] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [ledger, setLedger] = useState([]);
   const [searchUser, setSearchUser] = useState('');
   const [balanceAdjustUserId, setBalanceAdjustUserId] = useState(null);
   const [adjustAmount, setAdjustAmount] = useState('500');
@@ -32,10 +34,12 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
       const allUsers = await adminAPI.getAllUsers();
       const allAssets = await assetsAPI.getAllAssets();
       const allLogs = getSecurityLogs();
+      const allLedger = getAllLedgerTransactions();
 
       setUsers([...allUsers]);
       setAssets([...allAssets]);
       setLogs([...allLogs]);
+      setLedger([...allLedger]);
       setTick(t => t + 1);
     } catch (err) {
       // Silent catch on poll to avoid toast spam
@@ -192,6 +196,9 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
           </button>
           <button className={`tab ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
             TRACK MODERATION ({assets.length})
+          </button>
+          <button className={`tab ${activeTab === 'ledger' ? 'active' : ''}`} onClick={() => setActiveTab('ledger')}>
+            DOUBLE-ENTRY LEDGER ({ledger.length})
           </button>
           <button className={`tab ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>
             SECURITY AUDIT LOGS
@@ -355,6 +362,42 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
                         <Trash2 size={10} style={{ marginRight: '4px' }} /> Delete
                       </button>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* DOUBLE-ENTRY LEDGER TAB */}
+        {activeTab === 'ledger' && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', font: '11px "DM Mono", monospace', color: '#ece5f2' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--line)', color: '#83e9f4', textAlign: 'left' }}>
+                  <th style={{ padding: '10px' }}>TX ID</th>
+                  <th style={{ padding: '10px' }}>TYPE</th>
+                  <th style={{ padding: '10px' }}>PAYER</th>
+                  <th style={{ padding: '10px' }}>PAYEE</th>
+                  <th style={{ padding: '10px' }}>GROSS AMOUNT</th>
+                  <th style={{ padding: '10px' }}>90% CREATOR</th>
+                  <th style={{ padding: '10px' }}>10% PLATFORM</th>
+                  <th style={{ padding: '10px' }}>HASH</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ledger.length === 0 ? (
+                  <tr><td colSpan="8" style={{ padding: '16px', textAlign: 'center', color: '#aaa4b7' }}>No ledger transactions recorded yet.</td></tr>
+                ) : ledger.map(tx => (
+                  <tr key={tx.id} style={{ borderBottom: '1px solid rgba(209,183,247,0.08)' }}>
+                    <td style={{ padding: '10px', color: '#bd79ed', fontWeight: 700 }}>{tx.id}</td>
+                    <td style={{ padding: '10px' }}>{tx.type}</td>
+                    <td style={{ padding: '10px', color: '#aaa4b7' }}>@{tx.payerUsername}</td>
+                    <td style={{ padding: '10px', color: '#aaa4b7' }}>@{tx.payeeUsername}</td>
+                    <td style={{ padding: '10px', color: '#f4cf72', fontWeight: 700 }}>₹{tx.amount}</td>
+                    <td style={{ padding: '10px', color: '#6fe5bb' }}>₹{tx.creatorRoyalty.toFixed(2)}</td>
+                    <td style={{ padding: '10px', color: '#83e9f4' }}>₹{tx.platformFee.toFixed(2)}</td>
+                    <td style={{ padding: '10px', fontSize: '8px', color: 'rgba(255,255,255,0.4)' }}>{tx.txHash.slice(0, 16)}...</td>
                   </tr>
                 ))}
               </tbody>
