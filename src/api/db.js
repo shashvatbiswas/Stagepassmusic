@@ -34,52 +34,150 @@ const masterAdminUser = {
   createdAt: '2025-01-01T00:00:00.000Z'
 };
 
-const initialUsers = [masterAdminUser];
+const initialUsers = [
+  masterAdminUser,
+  {
+    id: 'user_aarav_vocalist',
+    username: 'aarav_vocalist',
+    artistName: 'Aarav Sharma',
+    email: 'aarav.vocalist@gmail.com',
+    password: 'password123',
+    roles: ['Singer', 'Vocalist'],
+    location: 'Mumbai, IN',
+    bio: 'Synthwave & Indie Pop Vocalist.',
+    profilePhoto: PRESET_AVATARS[0],
+    balance: 4500.00,
+    verified: true,
+    isAdmin: false,
+    createdAt: '2025-01-10T12:00:00.000Z'
+  },
+  {
+    id: 'user_maya_lyricist',
+    username: 'maya_lyricist',
+    artistName: 'Maya Sen',
+    email: 'maya.lyricist@gmail.com',
+    password: 'password123',
+    roles: ['Lyricist', 'Songwriter'],
+    location: 'Bengaluru, IN',
+    bio: 'Hindi & English songwriter.',
+    profilePhoto: PRESET_AVATARS[1],
+    balance: 2850.00,
+    verified: true,
+    isAdmin: false,
+    createdAt: '2025-01-12T14:30:00.000Z'
+  },
+  {
+    id: 'user_rohan_producer',
+    username: 'rohan_producer',
+    artistName: 'Rohan Kapoor',
+    email: 'rohan.producer@gmail.com',
+    password: 'password123',
+    roles: ['Producer', 'Beatmaker'],
+    location: 'Delhi, IN',
+    bio: 'Lo-fi & Hip Hop Beat producer.',
+    profilePhoto: PRESET_AVATARS[2],
+    balance: 6200.00,
+    verified: true,
+    isAdmin: false,
+    createdAt: '2025-01-15T09:15:00.000Z'
+  },
+  {
+    id: 'user_dev_guitarist',
+    username: 'dev_guitarist',
+    artistName: 'Dev Malhotra',
+    email: 'dev.guitarist@gmail.com',
+    password: 'password123',
+    roles: ['Vocalist', 'Guitarist'],
+    location: 'Chandigarh, IN',
+    bio: 'Acoustic & Synthwave Rock artist.',
+    profilePhoto: PRESET_AVATARS[3],
+    balance: 3400.00,
+    verified: true,
+    isAdmin: false,
+    createdAt: '2025-01-18T18:20:00.000Z'
+  },
+  {
+    id: 'user_nikita_indie',
+    username: 'nikita_indie',
+    artistName: 'Nikita Rao',
+    email: 'nikita.indie@gmail.com',
+    password: 'password123',
+    roles: ['Lyricist'],
+    location: 'Bengaluru, IN',
+    bio: 'Indie pop and acoustic lyrics writer.',
+    profilePhoto: PRESET_AVATARS[0],
+    balance: 1900.00,
+    verified: false,
+    isAdmin: false,
+    createdAt: '2025-01-20T11:00:00.000Z'
+  },
+  {
+    id: 'user_ishaan_synth',
+    username: 'ishaan_synth',
+    artistName: 'Ishaan Verma',
+    email: 'ishaan.synth@gmail.com',
+    password: 'password123',
+    roles: ['Producer', 'Sound Designer'],
+    location: 'Mumbai, IN',
+    bio: 'Analog synthwave and soundtrack producer.',
+    profilePhoto: PRESET_AVATARS[1],
+    balance: 5100.00,
+    verified: true,
+    isAdmin: false,
+    createdAt: '2025-01-22T16:45:00.000Z'
+  },
+  {
+    id: 'user_kohl_beats',
+    username: 'kohl_beats',
+    artistName: 'DJ Kohl',
+    email: 'kohl.beats@gmail.com',
+    password: 'password123',
+    roles: ['Beatmaker'],
+    location: 'Delhi, IN',
+    bio: 'Boom-bap & trap beat maker.',
+    profilePhoto: PRESET_AVATARS[2],
+    balance: 2300.00,
+    verified: false,
+    isAdmin: false,
+    createdAt: '2025-01-25T20:10:00.000Z'
+  }
+];
+
 const initialAssets = [];
 const initialCollabs = [];
 const initialPurchases = [];
 
 let dbInitialized = false;
+const DB_VERSION_KEY = 'stagepass_db_v11_directory';
 
 // Initialize Data in LocalStorage (runs once on application boot)
 export const initDB = () => {
   if (dbInitialized) return;
   dbInitialized = true;
   
-  let usersList = [];
-  try {
-    const raw = localStorage.getItem(DB_KEYS.USERS);
-    usersList = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    usersList = [];
+  const version = localStorage.getItem('stagepass_db_version');
+  if (version !== DB_VERSION_KEY) {
+    let existingUsers = [];
+    try {
+      const raw = localStorage.getItem(DB_KEYS.USERS);
+      existingUsers = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      existingUsers = [];
+    }
+
+    // Preserve any custom user signups created by real users
+    const customSignups = existingUsers.filter(u => 
+      u && u.username && !initialUsers.some(init => init.username === u.username)
+    );
+
+    const mergedUsers = [...initialUsers, ...customSignups];
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(mergedUsers));
+    localStorage.setItem('stagepass_db_version', DB_VERSION_KEY);
   }
 
-  // Filter out old demo dummy users
-  usersList = usersList.filter(u => 
-    u && u.username && !['aarav_sharma', 'maya_lyricist', 'rohan_beats', 'dev_guitarist'].includes(u.username)
-  );
-
-  // Ensure shashvatbiswas / aaravaadit2002@gmail.com exists with isAdmin: true
-  const adminIndex = usersList.findIndex(u => 
-    u && (u.username === 'shashvatbiswas' || u.email === 'aaravaadit2002@gmail.com' || u.username === 'shashvat')
-  );
-
-  if (adminIndex !== -1) {
-    usersList[adminIndex] = {
-      ...usersList[adminIndex],
-      id: usersList[adminIndex].id || 'user_master_admin',
-      username: 'shashvatbiswas',
-      email: 'aaravaadit2002@gmail.com',
-      artistName: usersList[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
-      isAdmin: true,
-      verified: true
-    };
-  } else {
-    usersList.unshift(masterAdminUser);
+  if (!localStorage.getItem(DB_KEYS.USERS)) {
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(initialUsers));
   }
-
-  localStorage.setItem(DB_KEYS.USERS, JSON.stringify(usersList));
-
   if (!localStorage.getItem(DB_KEYS.ASSETS)) {
     localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify([]));
   }
