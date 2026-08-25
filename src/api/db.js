@@ -1,5 +1,6 @@
 // StagePass Virtual Database & API Simulation
 import { PRESET_AUDIO_TRACKS, PRESET_COVERS, PRESET_AVATARS } from '../utils/presets';
+import { addSecurityLog } from '../utils/security';
 
 // Helper to simulate network latency
 export const sleep = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
@@ -81,11 +82,15 @@ export const authAPI = {
     await sleep(400);
     const users = getData(DB_KEYS.USERS);
     const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
-    if (!user) throw new Error('Invalid username/email or password');
+    if (!user) {
+      addSecurityLog('LOGIN_FAILED', `Failed login attempt for username: ${username}`, username);
+      throw new Error('Invalid username/email or password');
+    }
     
     const sessionUser = { ...user };
     delete sessionUser.password; // strip password
     localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
+    addSecurityLog('USER_LOGIN', `User session authenticated: ${user.artistName} (${user.username})`, user.username);
     return sessionUser;
   },
 
@@ -128,6 +133,7 @@ export const authAPI = {
     const sessionUser = { ...newUser };
     delete sessionUser.password;
     localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(sessionUser));
+    addSecurityLog('USER_REGISTER', `New creator account registered: ${newUser.artistName} (${newUser.email})`, newUser.username);
     return sessionUser;
   },
 

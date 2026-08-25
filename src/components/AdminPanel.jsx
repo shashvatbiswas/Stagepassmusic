@@ -27,9 +27,17 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
   const [adjustAmount, setAdjustAmount] = useState('500');
 
   useEffect(() => {
+    let intervalId = null;
     if (isOpen) {
       loadAdminData();
+      // 1-second live real-time auto-polling
+      intervalId = setInterval(() => {
+        loadAdminData();
+      }, 1000);
     }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [isOpen]);
 
   const loadAdminData = async () => {
@@ -42,7 +50,7 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
       setAssets(allAssets);
       setLogs(allLogs);
     } catch (err) {
-      addToast(err.message, 'error');
+      // Silent catch on poll to avoid toast spam
     }
   };
 
@@ -147,8 +155,11 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
               <ShieldCheck size={24} />
             </div>
             <div>
-              <h2 style={{ font: '18px Unbounded, sans-serif', margin: 0, textTransform: 'uppercase', color: '#fff' }}>
+              <h2 style={{ font: '18px Unbounded, sans-serif', margin: 0, textTransform: 'uppercase', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 Master Admin Security Console
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(110, 229, 187, 0.15)', border: '1px solid #6fe5bb', color: '#6fe5bb', padding: '2px 8px', borderRadius: '12px', fontSize: '8px', letterSpacing: '1px' }}>
+                  <i className="dot green"></i> LIVE 1s AUTO-SYNC
+                </span>
               </h2>
               <small className="mono" style={{ color: '#83e9f4', fontSize: '9px', letterSpacing: '1.5px' }}>
                 RESTRICTED ACCESS · LEVEL 5 PROTOCOL · OPERATOR: {currentUser.artistName}
