@@ -5,9 +5,9 @@ export default function Login({ onLoginSuccess, addToast }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   
-  // Login Form States
-  const [loginUser, setLoginUser] = useState('producer@resonance.fm');
-  const [loginPass, setLoginPass] = useState('sideb-secret');
+  // Login Form States (Default to Master Admin)
+  const [loginUser, setLoginUser] = useState('admin@stagepass.com');
+  const [loginPass, setLoginPass] = useState('admin-sideb-2025');
   
   // Forgot Password state
   const [forgotEmail, setForgotEmail] = useState('');
