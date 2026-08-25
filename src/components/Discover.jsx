@@ -142,47 +142,28 @@ export default function Discover({
   return (
     <div style={{ padding: '32px 0 80px 0', zIndex: 1, position: 'relative' }}>
       
-      {/* Marquee Ticker Ribbon */}
-      <div className="ticker-ribbon" style={{ marginBottom: '36px', marginTop: '-12px' }}>
-        <div className="ticker-track font-pixel" style={{ fontSize: '10px', color: '#e9d5ff', letterSpacing: '2px' }}>
-          {[...Array(3)].map((_, idx) => (
-            <React.Fragment key={idx}>
-              <span>SIDE B PAID</span> <span style={{ color: '#ec4899' }}>◆</span>
-              <span>FAIR PAYOUTS</span> <span style={{ color: '#00f0ff' }}>◆</span>
-              <span>INDIE FIRST</span> <span style={{ color: '#ec4899' }}>◆</span>
-              <span>CASSETTE ECONOMY</span> <span style={{ color: '#f59e0b' }}>◆</span>
-              <span>REMIX-READY STEMS</span> <span style={{ color: '#00f0ff' }}>◆</span>
-              <span>INSTANT LICENSING</span> <span style={{ color: '#ec4899' }}>◆</span>
-              <span>SIDE A IS FREE</span> <span style={{ color: '#22c55e' }}>◆</span>
-            </React.Fragment>
-          ))}
-        </div>
+      {/* Ticker Ribbon */}
+      <div className="ticker" aria-label="Side A benefits" style={{ marginTop: '-20px', marginBottom: '36px' }}>
+        <span>SIDE A FREE</span><b>◆</b>
+        <span>SIDE B PAID</span><b>◆</b>
+        <span>FAIR PAYOUTS</span><b>◆</b>
+        <span>INDIE FIRST</span><b>◆</b>
+        <span>CASSETTE ECONOMY</span><b>◆</b>
+        <span>REMIX-READY STEMS</span><b>◆</b>
+        <span>INSTANT LICENSING</span>
       </div>
 
       {/* Search Header Banner */}
       <section style={{ textAlign: 'center', marginBottom: '40px' }}>
         <div className="container" style={{ maxWidth: '750px' }}>
           
-          <div className="badge font-mono" style={{ marginBottom: '16px', letterSpacing: '2px', background: 'rgba(147, 51, 234, 0.15)', border: '1px solid rgba(147, 51, 234, 0.4)', color: '#c084fc', padding: '6px 16px', borderRadius: '20px' }}>
-            <Sparkles size={12} style={{ marginRight: '6px', color: '#00f0ff' }} /> STAGEPASS VAULT CATALOG
-          </div>
+          <div className="eyebrow" style={{ marginBottom: '16px' }}><i></i> STAGEPASS VAULT CATALOG</div>
 
-          <h2 className="font-orbitron" style={{
-            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-            fontWeight: 900,
-            letterSpacing: '1px',
-            marginBottom: '14px',
-            textTransform: 'uppercase'
-          }}>
-            <span style={{ background: 'linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              SIDE A IS FREE.
-            </span>{' '}
-            <span style={{ background: 'linear-gradient(90deg, #f43f5e 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              OWN SIDE B.
-            </span>
-          </h2>
+          <h1 style={{ fontSize: 'clamp(28px, 4.5vw, 48px)', margin: '14px 0 16px' }}>
+            Side A is <em>free.</em><br />Flip it. Own <em>Side B.</em>
+          </h1>
           
-          <p style={{ color: '#94a3b8', fontSize: '1rem', marginBottom: '30px', lineHeight: '1.6' }}>
+          <p className="hero-intro">
             Inspect waveforms, unlock preview streams, and secure intellectual property rights splits.
           </p>
 
