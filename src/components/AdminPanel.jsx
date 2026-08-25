@@ -263,7 +263,14 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(u => (
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: '#aaa4b7' }}>
+                        No creators match search query. Try registering a new creator on the portal!
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map(u => (
                     <tr key={u.id} style={{ borderBottom: '1px solid rgba(209,183,247,0.08)' }}>
                       <td style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {u.artistName} {u.verified && <CheckCircle size={12} style={{ color: '#83e9f4' }} />}
@@ -325,7 +332,7 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
                         )}
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>

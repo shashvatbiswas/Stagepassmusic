@@ -871,18 +871,20 @@ export const analyticsAPI = {
 export const adminAPI = {
   getAllUsers: async () => {
     const rawUsers = getData(DB_KEYS.USERS);
-    return rawUsers.map(u => ({
-      ...u,
-      id: u.id || ('user_' + (u.username || Math.random())),
-      username: u.username || 'user',
-      artistName: u.artistName || u.username || 'Creator',
-      email: u.email || 'N/A',
-      roles: Array.isArray(u.roles) ? u.roles : ['Creator'],
-      balance: typeof u.balance === 'number' ? u.balance : (parseFloat(u.balance) || 0),
-      verified: !!(u.verified || u.isVerified),
-      isSuspended: !!u.isSuspended,
-      isAdmin: !!u.isAdmin
-    }));
+    return rawUsers
+      .filter(u => u && (u.username || u.email || u.artistName))
+      .map(u => ({
+        ...u,
+        id: u.id || ('user_' + (u.username || u.email || Math.random())),
+        username: u.username || u.email || 'creator',
+        artistName: u.artistName || u.username || u.email || 'New Creator',
+        email: u.email || 'N/A',
+        roles: Array.isArray(u.roles) ? u.roles : (u.roles ? [u.roles] : ['Creator']),
+        balance: typeof u.balance === 'number' ? u.balance : (parseFloat(u.balance) || 0),
+        verified: !!(u.verified || u.isVerified),
+        isSuspended: !!u.isSuspended,
+        isAdmin: !!u.isAdmin
+      }));
   },
 
   toggleVerification: async (userId) => {
