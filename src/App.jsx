@@ -234,15 +234,15 @@ export default function App() {
           }}>
             <Wallet size={14} style={{ color: 'var(--accent-purple)' }} />
             <span className="mono" style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>
-              ₹{currentUser.balance.toFixed(0)}
+              ₹{(parseFloat(currentUser?.balance) || 0).toFixed(0)}
             </span>
           </div>
 
           {/* Avatar */}
           <img
-            src={currentUser.profilePhoto}
-            alt={currentUser.artistName}
-            onClick={() => navigateToProfile(currentUser.username)}
+            src={currentUser?.profilePhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
+            alt={currentUser?.artistName || 'Creator'}
+            onClick={() => navigateToProfile(currentUser?.username)}
             style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover',
               border: '1.5px solid var(--accent-cyan)', cursor: 'pointer' }}
           />
@@ -360,7 +360,7 @@ export default function App() {
               <button onClick={() => setIsRechargeOpen(false)} className="modal-close"><X size={14}/></button>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Current Balance: <strong style={{ color: '#fff' }}>₹{currentUser.balance.toFixed(2)}</strong>
+              Current Balance: <strong style={{ color: '#fff' }}>₹{(parseFloat(currentUser?.balance) || 0).toFixed(2)}</strong>
             </p>
             <form onSubmit={handleRechargeSubmit}>
               <div className="form-group">
