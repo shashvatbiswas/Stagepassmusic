@@ -151,13 +151,15 @@ export default function App() {
   };
 
   const handleAdminQuickLaunch = async () => {
+    const inputPass = window.prompt('🔒 Master Admin Security Check\nEnter Admin Passcode:');
+    if (!inputPass) return;
     try {
-      const adminUser = await authAPI.login('aaravaadit2002@gmail.com', 'Aaravaadit@2002');
+      const adminUser = await authAPI.login('aaravaadit2002@gmail.com', inputPass);
       setCurrentUser(adminUser);
       setIsAdminOpen(true);
       addToast('Master Admin Console Unlocked', 'success');
     } catch (err) {
-      addToast(err.message, 'error');
+      addToast('Invalid Admin Security Passcode', 'error');
     }
   };
 

@@ -5,9 +5,9 @@ export default function Login({ onLoginSuccess, addToast, onOpenAdmin, onOpenDow
   const [isSignUp, setIsSignUp] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   
-  // Login Form States (Default to Master Admin)
-  const [loginUser, setLoginUser] = useState('aaravaadit2002@gmail.com');
-  const [loginPass, setLoginPass] = useState('Aaravaadit@2002');
+  // Login Form States (Clean empty fields for public security)
+  const [loginUser, setLoginUser] = useState('');
+  const [loginPass, setLoginPass] = useState('');
   
   // Forgot Password state
   const [forgotEmail, setForgotEmail] = useState('');
