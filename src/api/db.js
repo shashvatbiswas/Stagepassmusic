@@ -53,14 +53,6 @@ export const initDB = () => {
   dbInitialized = true;
   
   try {
-    const version = localStorage.getItem('stagepass_db_version');
-    if (version !== DB_VERSION_KEY) {
-      // Purge all non-admin user data on reset
-      localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
-      localStorage.setItem('stagepass_db_version', DB_VERSION_KEY);
-      memoryStore[DB_KEYS.USERS] = [masterAdminUser];
-      return;
-    }
     let existingUsers = [];
     try {
       const raw = localStorage.getItem(DB_KEYS.USERS);
@@ -192,7 +184,7 @@ export const authAPI = {
       username: userData.username,
       password: userData.password,
       email: userData.email,
-      artistName: userData.artistName,
+      artistName: userData.artistName || userData.username,
       roles: userData.roles || ['Singer'],
       bio: userData.bio || 'New music creator on StagePass.',
       location: userData.location || 'Unknown Location',
