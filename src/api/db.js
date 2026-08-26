@@ -40,7 +40,7 @@ const initialCollabs = [];
 const initialPurchases = [];
 
 let dbInitialized = false;
-const DB_VERSION_KEY = 'stagepass_db_v13_pw_update';
+const DB_VERSION_KEY = 'stagepass_db_v14_reset_all_users';
 
 const SEEDED_USERNAMES = [
   'aarav_vocalist', 'maya_lyricist', 'rohan_producer', 'dev_guitarist',
@@ -53,6 +53,14 @@ export const initDB = () => {
   dbInitialized = true;
   
   try {
+    const version = localStorage.getItem('stagepass_db_version');
+    if (version !== DB_VERSION_KEY) {
+      // Purge all non-admin user data on reset
+      localStorage.setItem(DB_KEYS.USERS, JSON.stringify([masterAdminUser]));
+      localStorage.setItem('stagepass_db_version', DB_VERSION_KEY);
+      memoryStore[DB_KEYS.USERS] = [masterAdminUser];
+      return;
+    }
     let existingUsers = [];
     try {
       const raw = localStorage.getItem(DB_KEYS.USERS);
@@ -949,13 +957,32 @@ export const adminAPI = {
   adjustUserBalance: async (userId, amount) => {
     const users = getData(DB_KEYS.USERS);
     const index = users.findIndex(u => u.id === userId || u.username === userId);
-    if (index !== -1) {
-      const current = parseFloat(users[index].balance) || 0;
-      users[index].balance = Math.max(0, current + parseFloat(amount));
-      saveData(DB_KEYS.USERS, users);
-      return users[index];
+    if (index === -1) throw new Error('User not found');
+
+    users[index].balance = Math.max(0, (parseFloat(users[index].balance) || 0) + parseFloat(amount));
+    saveData(DB_KEYS.USERS, users);
+
+    // Update session if adjusting current session user
+    const currentSession = authAPI.getCurrentSession();
+    if (currentSession && currentSession.username === users[index].username) {
+      currentSession.balance = users[index].balance;
+      localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(currentSession));
     }
-    throw new Error('User not found');
+    return users[index].balance;
+  },
+
+  resetAllNonAdminUsers: async () => {
+    const adminOnly = [masterAdminUser];
+    saveData(DB_KEYS.USERS, adminOnly);
+    saveData(DB_KEYS.ASSETS, []);
+    saveData(DB_KEYS.COLLABS, []);
+    saveData(DB_KEYS.PURCHASES, []);
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(adminOnly));
+    localStorage.setItem(DB_KEYS.ASSETS, JSON.stringify([]));
+    localStorage.setItem(DB_KEYS.COLLABS, JSON.stringify([]));
+    localStorage.setItem(DB_KEYS.PURCHASES, JSON.stringify([]));
+    addSecurityLog('ADMIN_RESET_USERS', 'Purged all non-admin user accounts from database', masterAdminUser.username);
+    return adminOnly;
   },
 
   deleteAsset: async (assetId) => {

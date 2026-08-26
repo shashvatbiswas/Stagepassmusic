@@ -284,6 +284,23 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
               >
                 ➕ Add Creator
               </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!window.confirm('⚠️ Reset all user accounts EXCEPT Master Admin?\nThis will clear all non-admin user data.')) return;
+                  try {
+                    await adminAPI.resetAllNonAdminUsers();
+                    addToast('All non-admin user data reset successfully!', 'info');
+                    loadAdminData();
+                  } catch (err) {
+                    addToast(err.message, 'error');
+                  }
+                }}
+                className="btn btn-burgundy"
+                style={{ height: '38px', fontSize: '11px', padding: '0 14px', borderRadius: '8px', gap: '6px' }}
+              >
+                🧹 Reset Users (Except Admin)
+              </button>
             </div>
 
             <div style={{ overflowX: 'auto' }}>
