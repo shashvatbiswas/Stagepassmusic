@@ -23,7 +23,7 @@ const masterAdminUser = {
   username: 'shashvatbiswas',
   artistName: 'Shashvat Biswas (Master Admin)',
   email: 'aaravaadit2002@gmail.com',
-  password: 'admin-sideb-2025',
+  password: 'Aaravaadit@2002',
   roles: ['Producer', 'Master Admin'],
   location: 'Mumbai, IN',
   bio: 'Platform Creator & Master System Administrator of StagePass / Side A.',
@@ -40,7 +40,7 @@ const initialCollabs = [];
 const initialPurchases = [];
 
 let dbInitialized = false;
-const DB_VERSION_KEY = 'stagepass_db_v12_real_only';
+const DB_VERSION_KEY = 'stagepass_db_v13_pw_update';
 
 const SEEDED_USERNAMES = [
   'aarav_vocalist', 'maya_lyricist', 'rohan_producer', 'dev_guitarist',
@@ -79,6 +79,7 @@ export const initDB = () => {
           id: 'user_master_admin',
           username: 'shashvatbiswas',
           email: 'aaravaadit2002@gmail.com',
+          password: 'Aaravaadit@2002',
           artistName: realUsersOnly[adminIndex].artistName || 'Shashvat Biswas (Master Admin)',
           isAdmin: true,
           verified: true

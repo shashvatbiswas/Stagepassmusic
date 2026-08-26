@@ -7,7 +7,7 @@ export default function Login({ onLoginSuccess, addToast, onOpenAdmin, onOpenDow
   
   // Login Form States (Default to Master Admin)
   const [loginUser, setLoginUser] = useState('aaravaadit2002@gmail.com');
-  const [loginPass, setLoginPass] = useState('admin-sideb-2025');
+  const [loginPass, setLoginPass] = useState('Aaravaadit@2002');
   
   // Forgot Password state
   const [forgotEmail, setForgotEmail] = useState('');

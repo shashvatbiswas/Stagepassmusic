@@ -152,7 +152,7 @@ export default function App() {
 
   const handleAdminQuickLaunch = async () => {
     try {
-      const adminUser = await authAPI.login('aaravaadit2002@gmail.com', 'admin-sideb-2025');
+      const adminUser = await authAPI.login('aaravaadit2002@gmail.com', 'Aaravaadit@2002');
       setCurrentUser(adminUser);
       setIsAdminOpen(true);
       addToast('Master Admin Console Unlocked', 'success');
