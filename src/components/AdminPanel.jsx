@@ -240,14 +240,50 @@ export default function AdminPanel({ isOpen, onClose, addToast, currentUser }) {
         {/* USERS TAB */}
         {activeTab === 'users' && (
           <div>
-            <div className="input-wrap" style={{ marginBottom: '16px' }}>
-              <b style={{ paddingLeft: '12px' }}>⌕</b>
-              <input 
-                type="text"
-                placeholder="Filter users by name, username, or email..."
-                value={searchUser}
-                onChange={(e) => setSearchUser(e.target.value)}
-              />
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+              <div className="input-wrap" style={{ flex: 1 }}>
+                <b style={{ paddingLeft: '12px' }}>⌕</b>
+                <input 
+                  type="text"
+                  placeholder="Filter users by name, username, or email..."
+                  value={searchUser}
+                  onChange={(e) => setSearchUser(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={loadAdminData}
+                className="btn btn-secondary"
+                style={{ height: '38px', fontSize: '11px', padding: '0 14px', borderRadius: '8px', gap: '6px' }}
+              >
+                🔄 Refresh List
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const uname = window.prompt('Enter new user/creator username (e.g. shravani):');
+                  if (!uname) return;
+                  const uemail = window.prompt(`Enter email for @${uname}:`, `${uname.toLowerCase()}@stagepass.com`);
+                  const upass = window.prompt(`Enter password for @${uname}:`, 'password123');
+                  try {
+                    await authAPI.signup({
+                      username: uname,
+                      email: uemail || `${uname.toLowerCase()}@stagepass.com`,
+                      password: upass || 'password123',
+                      artistName: uname,
+                      roles: ['Singer']
+                    });
+                    addToast(`Creator @${uname} registered & added to Admin Console!`, 'success');
+                    loadAdminData();
+                  } catch (err) {
+                    addToast(err.message, 'error');
+                  }
+                }}
+                className="btn btn-cyan"
+                style={{ height: '38px', fontSize: '11px', padding: '0 14px', borderRadius: '8px', gap: '6px' }}
+              >
+                ➕ Add Creator
+              </button>
             </div>
 
             <div style={{ overflowX: 'auto' }}>

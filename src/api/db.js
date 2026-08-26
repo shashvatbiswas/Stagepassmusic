@@ -902,7 +902,11 @@ export const analyticsAPI = {
 // Admin Moderation API
 export const adminAPI = {
   getAllUsers: async () => {
-    const rawUsers = getData(DB_KEYS.USERS);
+    let rawUsers = getData(DB_KEYS.USERS);
+    if (!Array.isArray(rawUsers) || rawUsers.length === 0) {
+      rawUsers = [masterAdminUser];
+      saveData(DB_KEYS.USERS, rawUsers);
+    }
     return rawUsers
       .filter(u => u && (u.username || u.email || u.artistName))
       .map(u => ({
